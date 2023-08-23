@@ -67,14 +67,16 @@ dhKey(<<_:768/binary, P1, P2, P3, P4, _/binary>> = C1, version2) ->
 rc4_key(Key, Data) ->
   <<Out:16/binary, _/binary>> = hmac256:digest_bin(Key, Data),
   % Out = hmac256:digest_bin(Key, Data),
-  crypto:stream_init(rc4, Out).
+  % crypto:stream_init(rc4, Out).
+  crypto:crypto_init(rc4, Out, []).
 
 crypt(Key, Data) ->
-  crypto:stream_encrypt(Key, Data).
+  % crypto:stream_encrypt(Key, Data).
+  crypto:crypto_update(Key, Data).
 
 
 prepare_keys(KeyIn1, KeyOut1) ->
-  D1 = crypto:rand_bytes(?HS_BODY_LEN),
+  D1 = crypto:strong_rand_bytes(?HS_BODY_LEN),
   {KeyIn, D2} = crypt(KeyIn1, D1),
   {KeyOut, _} = crypt(KeyOut1, D2),
   {KeyIn, KeyOut}.
@@ -96,7 +98,7 @@ generate_dh(ClientPublic) ->
 
 
 s2(C2, ?HS_CRYPTED) ->
-  Response1 = <<0:32, 3,0,2,1, (crypto:rand_bytes(?HS_BODY_LEN - 8))/binary>>, 
+  Response1 = <<0:32, 3,0,2,1, (crypto:strong_rand_bytes(?HS_BODY_LEN - 8))/binary>>,
   SchemeVersion = rtmp_handshake:client_scheme_version(C2),
 
   {_, ClientPublic, _} = dhKey(C2, SchemeVersion),

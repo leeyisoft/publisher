@@ -41,7 +41,6 @@
 }).
 
 
-
 start_link(Type, RTMP, Options) ->
   gen_server:start_link(?MODULE, [Type, RTMP, Options], []).
 
@@ -53,6 +52,7 @@ stop(RTMP) ->
 
 
 init([Type, URL, Options]) ->
+  io:format("publisher_rtmp:init/1: ~p, ~p, ~p ~n", [Type, URL, Options]),
   Publisher = case Type of
     passive -> init_passive(URL, Options);
     active  -> init_active(URL, Options)
@@ -69,7 +69,6 @@ init_passive(RTMP, Options) ->
 
 
 init_active(URL, Options) ->
-
   {ok, RTMP} = rtmp_socket:connect(URL),
   Stream = receive
     {rtmp, RTMP, connected} ->
@@ -99,11 +98,9 @@ init_active(URL, Options) ->
   }.
 
 
-
 channel_id(#video_frame{content = metadata}) -> 4;
 channel_id(#video_frame{content = audio}) -> 5;
 channel_id(#video_frame{content = video}) -> 6.
-
 
 rtmp_message(#video_frame{dts = DTS, content = Type} = Frame, StreamId) ->
   #rtmp_message{
@@ -121,7 +118,6 @@ send_frame(Socket, Stream, #video_frame{} = Frame) when is_port(Socket) ->
 send_frame(RTMP, Stream, #video_frame{} = Frame) when is_pid(RTMP) ->
   Message = rtmp_message(Frame, Stream),
   rtmp_socket:send(RTMP, Message).
-
 
 
 handle_call(Call, _From, State) ->
@@ -184,7 +180,7 @@ handle_message(#rtmp_message{type = Type}, State) when Type == ack_read orelse T
   {noreply, State};
 
 handle_message(#rtmp_message{} = Message, State) ->
-  io:format("Unknown message ~p~n", [Message]),
+  io:format("publisher_rtmp Unknown message ~p~n", [Message]),
   {noreply, State}.
 
 handle_invoke(#rtmp_funcall{command = <<"connect">>} = _AMF, #publisher{rtmp = RTMP} = State) ->
@@ -222,5 +218,3 @@ handle_status(Code, _Status, State) ->
 
 terminate(_, _) -> ok.
 code_change(_, State, _) -> {ok, State}.
-
-

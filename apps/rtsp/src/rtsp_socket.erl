@@ -377,7 +377,7 @@ save_media_info(#rtsp_socket{options = Options} = Socket, #media_info{streams = 
 
 
 generate_session() ->
-  {_A1, A2, A3} = now(),
+  {_A1, A2, A3} = erlang:timestamp(),
   lists:flatten(io_lib:format("~p~p", [A2*1000,A3 div 1000])).
 
 seq(Headers) ->

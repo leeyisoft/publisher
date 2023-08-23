@@ -32,7 +32,15 @@
 -include("log.hrl").
 -include_lib("eunit/include/eunit.hrl").
 
--compile(export_all).
+% -compile(export_all).
+% -export([rtp_state1/0]).
+% -export([rtp_decode_test/0]).
+% -export([decode_video_h264_test/0]).
+% -export([decode_audio_aac_test/0]).
+% -export([decode_sr_test_/0]).
+-export([wirecast_sdp/0]).
+-export([wirecast_video_rtp/0]).
+-export([wirecast_audio_rtp/0]).
 
 rtp_state1() ->
   #rtp_channel{sequence = 11143,

@@ -2,5 +2,5 @@
 
 [ -f ./publisher.conf ] || cp publisher.conf.sample publisher.conf
 
-erl -pa apps/*/ebin -pz deps/*/ebin +K true +A 4 +a 4096 -sasl errlog_type error -s publisher run 
+erl -pa _build/default/lib//*/ebin -pz deps/*/ebin +K true +A 4 +a 4096 -sasl errlog_type error -s publisher run
 

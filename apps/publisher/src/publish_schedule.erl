@@ -43,7 +43,7 @@ fetch(URL) ->
       {ok, Schedule#schedule{url = URL}}
   catch
     Class:Error ->
-      error_logger:error_msg("Failed to fetch schedule from ~s: ~p:~p~n~p~n", [URL, Class, Error, erlang:get_stacktrace()]),
+      error_logger:error_msg("Failed to fetch schedule from ~s: ~p:~p~n~p~n", [URL, Class, Error]),
       {ok, undefined}
   end.
 
@@ -53,7 +53,6 @@ parse(JSON) ->
   Mode = proplists:get_value(<<"mode">>, Info),
   WorkNow = proplists:get_value(<<"work_now">>, Info),
   {ok, #schedule{mode = Mode, schedule = Schedule, work_now = WorkNow}}.
-
 
 parse_schedule(Schedule) ->
   lists:map(fun(Info) ->
@@ -100,7 +99,3 @@ time_in_segment(Time, {Start, Finish}) ->
 
 time_le({H1,M1,S1}, {H2,M2,S2}) ->
   H1*3600+M1*60+S1 =< H2*3600+M2*60+S2.
-
-
-
-

@@ -250,20 +250,3 @@ parse_rtmp_1_test() ->
 parse_rtsp_1_test() ->
   ?assertEqual({rtsp,[],"ya.ru",554,"/test/access",[]},  http_uri2:parse("rtsp://ya.ru/test/access")).
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

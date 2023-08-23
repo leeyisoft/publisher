@@ -27,4 +27,3 @@
 
 create_client(Socket, Options) ->
   publisher_sup:start_publisher(passive, Socket, Options).
-

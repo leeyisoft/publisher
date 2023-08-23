@@ -122,5 +122,3 @@ flush_check() ->
   
 is_alive(Pid) when is_pid(Pid) -> erlang:is_process_alive(Pid);
 is_alive(_) -> false.
-
-

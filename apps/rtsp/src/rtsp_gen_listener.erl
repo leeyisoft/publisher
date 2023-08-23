@@ -144,7 +144,7 @@ handle_info({inet_async, ListenSock, Ref, {ok, CliSocket}},
       case Callback:accept(CliSocket, Args) of
         ok -> ok;
         {error, Reason} ->
-          error_logger:error_msg("Error while accepting socket: ~p~n~p~n", [Reason, erlang:get_stacktrace()]),
+          error_logger:error_msg("Error while accepting socket: ~p~n", [Reason]),
           gen_tcp:close(CliSocket)
       end,
       {ok, NewRef} = prim_inet:async_accept(ListenSock, -1),

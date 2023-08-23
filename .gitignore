@@ -4,3 +4,6 @@ publisher.conf
 log
 .vagrant
 .vagrant_aptcache
+rebar.lock
+_build
+erl_crash.dump

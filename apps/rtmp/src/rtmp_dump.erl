@@ -91,7 +91,7 @@ protect(#dumper{id = Id} = Dumper, []) ->
     Reply -> Reply
   catch
     Class:Error ->
-      ?D({respawn,Id,Class,Error, erlang:get_stacktrace()}),
+      ?D({respawn,Id,Class,Error, "erlang:get_stacktrace()"}),
       protect(Dumper, [])
   end.
 

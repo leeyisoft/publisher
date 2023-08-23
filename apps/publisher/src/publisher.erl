@@ -52,7 +52,6 @@ run(Options) ->
   
   load_config(Config),
   {ok, erlang:whereis(publisher_sup)}.
-  
 
 
 load_config([{capture, Camera, Options}|Config]) ->
@@ -95,7 +94,3 @@ publish(URL, Name, Options) ->
 
 listen(Listen, Options) ->
   publisher_sup:start_listener(Listen, Options).
-
-
-
-  

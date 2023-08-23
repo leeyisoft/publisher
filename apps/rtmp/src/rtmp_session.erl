@@ -136,7 +136,7 @@ set_socket(Pid, Socket) when is_pid(Pid) ->
 %% @private
 %%-------------------------------------------------------------------------
 init([Callback]) ->
-  random:seed(now()),
+  rand:seed(erlang:timestamp()),
   {ok, Session} = Callback:init(#rtmp_session{module = Callback}),
   {ok, Session}.
 
@@ -392,7 +392,7 @@ call_function(#rtmp_session{} = State, #rtmp_funcall{command = connect, args = [
     _ -> 0
   end,
 
-  SessionId = timer:now_diff(erlang:now(),{0,0,0}),
+  SessionId = timer:now_diff(erlang:timestamp(),{0,0,0}),
 
 	NewState1 =	State#rtmp_session{player_info = PlayerInfo, path = Path, amf_ver = AMFVersion, session_id = SessionId},
 	

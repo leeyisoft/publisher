@@ -1,27 +1,32 @@
 include version.mk
 
 all: compile
-	
 
 
 compile: 
 	@find . -name '._*' -delete
-	#[ -d deps/alsa ] || ./rebar get-deps
-	./rebar compile
+	#[ -d deps/alsa ] || rebar3 get-deps
+	rebar3 compile
 
 linux:
-	ERL_LIBS=apps ./rebar -C rebar-linux.config get-deps compile
+	REBAR_CONFIG=$(CURDIR)/rebar-linux.config
+	ERL_LIBS=apps rebar3 get-deps compile
 
 linux-compile:
-	ERL_LIBS=apps ./rebar -C rebar-linux.config get-deps compile
+	REBAR_CONFIG=$(CURDIR)/rebar-linux.config
+	ERL_LIBS=apps rebar3 get-deps compile
 
 clean:
-	./rebar clean
+	rebar3 clean
 
-get-deps:
-	./rebar get-deps
+deps:
+	rebar3 deps
+
 
 start:
+	run_erl /tmp/ /tmp/ ./start
+
+start_daemon:
 	run_erl -daemon /tmp/ /tmp/ ./start
 
 

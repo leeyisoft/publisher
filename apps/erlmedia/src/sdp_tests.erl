@@ -29,7 +29,19 @@
 -include_lib("../include/media_info.hrl").
 -include_lib("../include/sdp.hrl").
 
--compile(export_all).
+% -compile(export_all).
+
+-export([dlink_dcs_2121_test1/0]).
+-export([darwinss_test1/0]).
+-export([darwin_sdp/0]).
+-export([darwin_test1/0]).
+-export([sanyo_hd2300_sdp/0]).
+-export([sanyo_hd2300_test1/0]).
+-export([jitsy_sdp/0]).
+-export([treart_sdp/0]).
+-export([aviglion_sdp/0]).
+-export([encoder_test1/0]).
+-export([grandstream_sdp/0]).
 
 beward_sdp() ->
   <<"v=0

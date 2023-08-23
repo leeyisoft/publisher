@@ -47,7 +47,6 @@
 -author('Max Lapshin <max@maxidoors.ru>').
 -include("../include/rtmp.hrl").
 -include("rtmp_private.hrl").
--version(1.1).
 
 -export([accept/1, connect/1, connect/2, start_link/1, getopts/2, setopts/2, getstat/2, getstat/1, send/2, get_socket/1]).
 -export([status/3, status/4, prepare_status/2, prepare_status/3, invoke/2, invoke/4, prepare_invoke/3, notify/4, prepare_notify/3]).
@@ -138,7 +137,7 @@ start_socket(Type, Socket) ->
 set_socket(RTMP, Socket) ->
     gen_fsm:send_event(RTMP, {socket, Socket}).
 
-get_socket(RTMP) -> 
+get_socket(RTMP) ->
       gen_fsm:sync_send_all_state_event(RTMP, get_socket, ?RTMP_TIMEOUT).
 
 notify_audio(RTMP, StreamId, DTS) ->
@@ -149,14 +148,14 @@ notify_video(RTMP, StreamId, DTS) ->
 
 close(Socket) ->
   Socket ! stop.
-  
+
 %% @private
 start_link(Type) ->
   gen_fsm:start_link(?MODULE, [Type], []).
-  
-  
+
+
 %% @spec (RTMP::pid(), Options::[{Key, Value}]|{Key, Value}) -> ok
-%% @doc Just the same as {@link inet:setopts/2. inet:setopts/2} this function changes state of 
+%% @doc Just the same as {@link inet:setopts/2. inet:setopts/2} this function changes state of
 %% rtmp socket.<br/>
 %%  Available options:
 %%  <ul><li><code>chunk_size</code> - change outgoing chunk size</li>
@@ -171,7 +170,7 @@ setopts(RTMP, Options) ->
   gen_fsm:sync_send_all_state_event(RTMP, {setopts, Options}).
 
 %% @spec (RTMP::pid(), Options::[{Key, Value}]|{Key, Value}) -> ok
-%% @doc Just the same as {@link inet:getopts/2. inet:getopts/2} this function gets state of 
+%% @doc Just the same as {@link inet:getopts/2. inet:getopts/2} this function gets state of
 %% rtmp socket.<br/>
 %%  Available options:
 %%  <ul>
@@ -187,7 +186,7 @@ getopts(RTMP, Options) ->
   gen_fsm:sync_send_all_state_event(RTMP, {getopts, Options}, ?RTMP_TIMEOUT).
 
 %% @spec (RTMP::pid(), Stats::[Key]) -> Values::[{Key,Value}]
-%% @doc Just the same as {@link inet:getstats/2. inet:getstats/2} this function gets statistics of 
+%% @doc Just the same as {@link inet:getstats/2. inet:getstats/2} this function gets statistics of
 %% rtmp socket.<br/>
 %%  Available options:
 %%  <ul>
@@ -200,13 +199,13 @@ getstat(RTMP, Options) ->
   gen_fsm:sync_send_all_state_event(RTMP, {getstat, Options}, ?RTMP_TIMEOUT).
 
 %% @spec (RTMP::pid()) -> Values::[{Key,Value}]
-%% @doc Just the same as {@link inet:getstats/1. inet:getstats/1} this function gets statistics of 
+%% @doc Just the same as {@link inet:getstats/1. inet:getstats/1} this function gets statistics of
 %% rtmp socket.<br/>
 -spec(getstat(RTMP::rtmp_socket_pid()) -> ok).
 getstat(RTMP) ->
   gen_fsm:sync_send_all_state_event(RTMP, getstat, ?RTMP_TIMEOUT).
 
-  
+
 %% @spec (RTMP::pid(), Message::rtmp_message()) -> ok
 %% @doc Sends message to client.
 %% @end
@@ -220,7 +219,7 @@ send(RTMP, Message) ->
   % end,
   RTMP ! Message,
   ok.
-  
+
 
 
 notify(RTMP, StreamId, Name, Args) ->
@@ -241,8 +240,8 @@ prepare_status(StreamId, Code) when is_binary(Code) ->
 -spec(prepare_status(StreamId::non_neg_integer(), Code::any_string(), Description::any_string()) -> rtmp_message()).
 prepare_status(StreamId, Code, Description) ->
   Arg = {object, [
-    {code, Code}, 
-    {level, <<"status">>}, 
+    {code, Code},
+    {level, <<"status">>},
     {description, Description}
   ]},
   prepare_invoke(StreamId, onStatus, [Arg]).
@@ -258,7 +257,7 @@ status(RTMP, StreamId, Code) when is_list(Code) ->
 status(RTMP, StreamId, Code) when is_binary(Code) ->
   status(RTMP, StreamId, Code, <<"-">>).
 
-  
+
 prepare_invoke(StreamId, Command, Args) when is_integer(StreamId) ->
   AMF = #rtmp_funcall{
       command = Command,
@@ -281,8 +280,8 @@ invoke(RTMP, #rtmp_funcall{stream_id = StreamId, id = InvokeId} = AMF) ->
   send(RTMP, #rtmp_message{stream_id = StreamId, type = invoke, body = AMF}),
   {ok, InvokeId}.
 
-  
-%% @private  
+
+%% @private
 init([accept]) ->
   {ok, wait_for_socket_on_server, #rtmp_socket{channels = {}, out_channels = {}, active = false}, ?RTMP_TIMEOUT};
 
@@ -291,7 +290,7 @@ init([connect]) ->
 
 
 
-%% @private 
+%% @private
 
 wait_for_socket_on_server(timeout, State) ->
   {stop, normal, State};
@@ -310,7 +309,7 @@ wait_for_socket_on_server({socket, Socket}, #rtmp_socket{} = State) when is_pid(
   {next_state, handshake_c1, State#rtmp_socket{socket = Socket}, ?RTMP_TIMEOUT}.
 
 
-%% @private  
+%% @private
 -spec(wait_for_socket_on_client(Message::any(), Socket::rtmp_socket()) -> no_return()).
 
 wait_for_socket_on_client(timeout, State) ->
@@ -323,23 +322,23 @@ wait_for_socket_on_client({socket, Socket}, #rtmp_socket{} = State) ->
   send_data(State1, rtmp_handshake:c1()),
   {next_state, handshake_s1, State1, ?RTMP_TIMEOUT}.
 
-%% @private  
+%% @private
 handshake_c1(timeout, State) ->
   {stop, normal, State}.
 
-%% @private  
+%% @private
 handshake_c3(timeout, State) ->
   {stop, normal, State}.
 
-%% @private  
+%% @private
 handshake_s1(timeout, State) ->
   {stop, normal, State}.
-  
-%% @private  
+
+%% @private
 loop(timeout, #rtmp_socket{pinged = false} = State) ->
   State1 = send_data(State, #rtmp_message{type = ping}),
   {next_state, loop, State1#rtmp_socket{pinged = true}, ?RTMP_TIMEOUT};
-  
+
 loop(timeout, #rtmp_socket{consumer = Consumer} = State) ->
   Consumer ! {rtmp, self(), timeout},
   {stop, normal, State}.
@@ -381,7 +380,7 @@ get_options(State, address) ->
 
 get_options(_State, []) ->
   [];
-  
+
 get_options(State, [Key | Options]) ->
   [get_options(State, Key) | get_options(State, Options)].
 
@@ -406,7 +405,7 @@ set_options(State, [{amf_version, Version} | Options]) ->
 set_options(#rtmp_socket{socket = Socket, buffer = Data} = State, [{active, Active} | Options]) ->
   State1 = flush_send(State#rtmp_socket{active = Active}),
   State2 = case Active of
-    false -> 
+    false ->
       inet:setopts(Socket, [{active, false}]),
       State1;
     true ->
@@ -436,7 +435,7 @@ set_options(State, [{chunk_size, ChunkSize} | Options]) ->
   set_options(State1#rtmp_socket{server_chunk_size = ChunkSize}, Options);
 
 set_options(State, []) -> State.
-  
+
 %%-------------------------------------------------------------------------
 %% Func: handle_event/3
 %% Returns: {next_state, NextStateName, NextStateData}          |
@@ -505,19 +504,19 @@ handle_sync_event(Event, _From, StateName, StateData) ->
 handle_info({tcp, Socket, Data}, handshake_c1, #rtmp_socket{socket=Socket, buffer = Buffer, bytes_read = BytesRead} = State) when size(Buffer) + size(Data) < ?HS_BODY_LEN + 1 ->
   activate_socket(State),
   {next_state, handshake_c1, State#rtmp_socket{buffer = <<Buffer/binary, Data/binary>>, bytes_read = BytesRead + size(Data)}, ?RTMP_TIMEOUT};
-  
+
 handle_info({tcp, Socket, Data}, handshake_c1, #rtmp_socket{socket=Socket, buffer = Buffer, bytes_read = BytesRead} = State) ->
   activate_socket(State),
   <<Handshake:(?HS_BODY_LEN+1)/binary, Rest/binary>> = <<Buffer/binary, Data/binary>>,
   State1 = case rtmp_handshake:server(Handshake) of
-    {uncrypted, Reply} -> 
-  	  send_data(State, Reply);
+    {uncrypted, Reply} ->
+      send_data(State, Reply);
     {crypted, Reply, KeyIn, KeyOut} ->
-  	  NewState = send_data(State, Reply),
-  	  ?D({"Established RTMPE connection"}),
+      NewState = send_data(State, Reply),
+      ?D({"Established RTMPE connection"}),
       NewState#rtmp_socket{key_in = KeyIn, key_out = KeyOut}
   end,
-	{next_state, 'handshake_c3', State1#rtmp_socket{buffer = Rest, bytes_read = BytesRead + size(Data)}, ?RTMP_TIMEOUT};
+    {next_state, 'handshake_c3', State1#rtmp_socket{buffer = Rest, bytes_read = BytesRead + size(Data)}, ?RTMP_TIMEOUT};
 
 
 handle_info({tcp, Socket, Data}, handshake_c3, #rtmp_socket{socket=Socket, buffer = Buffer, bytes_read = BytesRead} = State) when size(Buffer) + size(Data) < ?HS_BODY_LEN ->
@@ -556,9 +555,7 @@ handle_info({tcp, Socket, Data}, handshake_s1, #rtmp_socket{socket=Socket, consu
     true -> inet:setopts(Socket, [{active, true}]);
     _ -> ok
   end,
-  
   {next_state, loop, handle_rtmp_data(State#rtmp_socket{bytes_read = BytesRead + size(Data), buffer = Rest}), ?RTMP_TIMEOUT};
-
 
 
 handle_info({tcp, Socket, CryptedData}, loop, #rtmp_socket{socket=Socket, buffer = Buffer, bytes_read = BytesRead, bytes_unack = BytesUnack, key_in = KeyIn} = State) ->
@@ -620,8 +617,8 @@ flush_all() ->
   after
     0 -> ok
   end.
-      
-  
+
+
 activate_socket(#rtmp_socket{socket = Socket}) when is_port(Socket) ->
   inet:setopts(Socket, [{active, once}]);
 activate_socket(#rtmp_socket{socket = Socket}) when is_pid(Socket) ->
@@ -715,7 +712,6 @@ print_rtmp_message(InOut, #rtmp_message{channel_id = Channel, ts_type = TSType, 
 print_rtmp_message(InOut, Msg) ->
   io:format("~p ~p~n", [InOut, Msg]),
   ok.
-  
 
 
 got_rtmp_message({#rtmp_socket{debug = true}, Msg, _} = Message) ->

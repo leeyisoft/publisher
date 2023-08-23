@@ -154,7 +154,7 @@ read_frame(#reader{socket = RTMP, count = Count} = Reader) ->
       read_frame(Reader#reader{count = Count+1});
     {rtmp, RTMP, disconnect} -> ok;
     Else -> 
-      io:format("Unknown message ~p~n", [Else])
+      io:format("rtmp_bench Unknown message ~p~n", [Else])
   after
     10000 -> io:format("Timeout in reading~n")
   end.

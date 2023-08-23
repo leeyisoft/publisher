@@ -49,8 +49,6 @@
           16#93, 16#B8, 16#E6, 16#36, 16#CF, 16#EB, 16#31, 16#AE>>).
 
 
-
-
 -spec clientDigest(Handshake::binary(), handshake_version()) -> {First::binary(), Seed::binary(), Last::binary()}.
 
 % Flash before 10.0.32.18
@@ -87,7 +85,7 @@ client_scheme_version(C1) ->
   end.
 
 c1() ->
-  [?HS_UNCRYPTED, <<0:32, 0:32>>, crypto:rand_bytes(?HS_BODY_LEN - 8)].
+  [?HS_UNCRYPTED, <<0:32, 0:32>>, crypto:strong_rand_bytes(?HS_BODY_LEN - 8)].
   
 c2(<<_Time:32, _V1,_V2,_V3,_V4, _Rand/binary>> = S1) ->
   % io:format("Server: ~p, ~p.~p.~p.~p~n", [Time, V1, V2, V3, V4]),
@@ -105,10 +103,8 @@ server(<<Encryption, C2:?HS_BODY_LEN/binary>>) ->
     ?HS_CRYPTED ->
       rtmpe:s2(C2, Encryption);
     ?HS_UNCRYPTED ->
-      {undefined, undefined, <<0:32, 3,0,2,1, (crypto:rand_bytes(?HS_BODY_LEN - 8))/binary>>}
+      {undefined, undefined, <<0:32, 3,0,2,1, (crypto:strong_rand_bytes(?HS_BODY_LEN - 8))/binary>>}
   end,
-        
-      
 
   %% Now generate digest of S2
 
@@ -121,7 +117,7 @@ server(<<Encryption, C2:?HS_BODY_LEN/binary>>) ->
   % ?D({serverDH, size(ServerFirst), serverDigest, size(Digest1)}),
   %% ------ S3
   
-  Response4 = crypto:rand_bytes(?HS_BODY_LEN - 32),
+  Response4 = crypto:strong_rand_bytes(?HS_BODY_LEN - 32),
   {_, ClientDigest, _} = clientDigest(C2, SchemeVersion),
   TempHash = hmac256:digest_bin(?GENUINE_FMS_KEY, ClientDigest),
   ClientHash = hmac256:digest_bin(TempHash, Response4),

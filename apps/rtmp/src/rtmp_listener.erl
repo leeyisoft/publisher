@@ -45,7 +45,7 @@ accept(CliSocket, Args) ->
     Reply -> Reply
   catch
     % _Class:{noproc, _} -> ok;
-    _Error:Reason -> error_logger:error_msg("Error in RTMP Listener: ~p~n~p~n", [Reason, erlang:get_stacktrace()])
+    Error:Reason -> error_logger:error_msg("Error in RTMP Listener: ~p~n~p~n", [Error, Reason])
   end.  
 
 raw_accept(CliSocket, [Callback|Args]) ->

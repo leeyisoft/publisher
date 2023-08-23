@@ -90,7 +90,7 @@ ensure_capture(#encoder{start = undefined, clients = _Clients, options = _Option
   %   body = [<<"@setDataFrame">>,<<"onMetaData">>, {object, Meta}]
   % },
   % [Client ! MetaFrame || Client <- Clients],
-  Encoder2 = start_h264_capture(Encoder1#encoder{last_dts =0, start = erlang:now()}),
+  Encoder2 = start_h264_capture(Encoder1#encoder{last_dts =0, start = erlang:timestamp()}),
   Encoder3 = start_aac_capture(Encoder2),
   Encoder3;
 
@@ -238,7 +238,7 @@ handle_call(status, _From, #encoder{buffer = Buf, start = Start} = State) ->
   Status = [
     {buffer, [{C,D} || #video_frame{codec = C, dts = D} <- Buf]},
     {buffered_frames, length(Buf)},
-    {abs_delta, timer:now_diff(erlang:now(), Start) div 1000}
+    {abs_delta, timer:now_diff(erlang:timestamp(), Start) div 1000}
   ],
   {reply, Status, State};
 
@@ -289,7 +289,7 @@ frame_sorter(#video_frame{}, #video_frame{}) -> false.
 
 
 real_send(ToSend, #encoder{clients = Clients, start = Start} = State) ->
-  AbsDelta = timer:now_diff(erlang:now(), Start) div 1000,
+  AbsDelta = timer:now_diff(erlang:timestamp(), Start) div 1000,
   lists:foreach(fun(F1) ->
     lager:debug("~4s ~8s ~8B ~8B ~8B ~8B~n", [F1#video_frame.codec, F1#video_frame.flavor, round(F1#video_frame.dts), round(F1#video_frame.pts), AbsDelta, round(AbsDelta - F1#video_frame.dts)]),
     [Client ! F1 || Client <- Clients]
@@ -314,7 +314,7 @@ handle_info({uvc, _UVC, yuv, PTS1, YUV}, State) ->
   end,
   PTS = PTS1 - get(start_uvc_pts),
   drop(),
-  % T1 = erlang:now(),
+  % T1 = erlang:timestamp(),
   % PTS = timer:now_diff(T1, State#encoder.start) div 1000,  
   handle_info({yuv, YUV, PTS}, State);
 
@@ -334,14 +334,14 @@ handle_info({yuv, YUV, PTS}, #encoder{x264 = X264} = State) ->
   X264 ! {yuv, YUV, PTS},
 
   VideoCount = State#encoder.video_count + 1,
-  % ?D({v,VideoCount, VideoCount*50, timer:now_diff(erlang:now(),State#encoder.start) div 1000, Drop}),
+  % ?D({v,VideoCount, VideoCount*50, timer:now_diff(erlang:timestamp(),State#encoder.start) div 1000, Drop}),
   {noreply, State#encoder{video_count = VideoCount}};
 
 handle_info({alsa, _Capture, DTS, PCM}, #encoder{faac = AACEnc} = State) ->
   AACEnc ! {alsa, PCM, DTS},
 
   % AudioCount = State#encoder.audio_count + (size(PCM) div 2),
-  % AbsDelta = timer:now_diff(erlang:now(),State#encoder.start) div 1000,
+  % AbsDelta = timer:now_diff(erlang:timestamp(),State#encoder.start) div 1000,
   % StreamDelta = State#encoder.audio_count div (32*2),
   % ?D({a, DTS, StreamDelta, AbsDelta, AbsDelta - StreamDelta}),
   AudioCount = State#encoder.audio_count + 1,
@@ -372,5 +372,3 @@ terminate(_Reason, #encoder{}) ->
 
 code_change(_OldVsn, State, _Extra) ->
   {ok, State}.
-
-

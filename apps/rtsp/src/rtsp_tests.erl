@@ -25,8 +25,19 @@
 -author('Max Lapshin <max@maxidoors.ru>').
 -include_lib("erlmedia/include/video_frame.hrl").
 -include_lib("eunit/include/eunit.hrl").
--compile(export_all).
-
+% -compile(export_all).
+% -export([axis_m1011_test_/0]).
+% -export([axis_q7404_test_/0]).
+% -export([axis_p5534_test_/0]).
+% -export([axis_m1031_w_test_/0]).
+% -export([beward_test_/0]).
+% -export([sanyo_hd2100_test_/0]).
+% -export([sanyo_hd2500_test_/0]).
+% -export([beward_w20100722ns_test_/0]).
+% -export([beward_1_test_/0]).
+% -export([logitech_750_low_test_/0]).
+-export([capture_output/0]).
+-export([test_camera/1, test_camera/2]).
 
 axis_m1011_test_() ->
   run_camera_test("axis-m1011", 8092).

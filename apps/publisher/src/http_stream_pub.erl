@@ -40,7 +40,7 @@ make_request_with_redirect(URL, Options, RedirectsLeft) ->
       Timeout = proplists:get_value(timeout, Options, 3000),
       case wait_for_headers(Socket, [], Timeout) of
         {ok, Headers} ->
-%          gen_tcp:close(Socket),
+          % gen_tcp:close(Socket),
           Location = proplists:get_value('Location', Headers),
           NewURL = calculate_redirected_url(URL, Location),
           make_request_with_redirect(NewURL, Options, RedirectsLeft - 1);
@@ -155,7 +155,7 @@ get_with_body(URL, Options) ->
           end;
         Length ->
           {ok, Body} = gen_tcp:recv(Socket, to_i(Length)),
- %         gen_tcp:close(Socket),
+          % gen_tcp:close(Socket),
           {ok, Socket, Headers, Body}
       end;
     Else ->
@@ -243,11 +243,4 @@ calculate_redirected_url_test() ->
   ?assertEqual(<<"http://ya.ru/145">>, calculate_redirected_url("http://ya.ru/", "/145")),
   ?assertEqual(<<"http://ya.ru/145">>, calculate_redirected_url("http://ya.ru/", "http://ya.ru/145")),
   ?assertEqual(<<"http://yahoo.com/145">>, calculate_redirected_url("http://ya.ru/", "http://yahoo.com/145")).
-  
-
-
-
-
-
-
   

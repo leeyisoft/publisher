@@ -132,7 +132,7 @@ handle_info({'DOWN', _, process, Object, _Reason}, #shared_objects{objects = Obj
   
 
 handle_info(_Info, State) ->
-  ?D({"Unknown message", _Info}),
+  ?D({"shared_objects Unknown message", _Info}),
   {noreply, State}.
 
 
